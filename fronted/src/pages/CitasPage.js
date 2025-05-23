@@ -4,34 +4,34 @@ import {
   Button, Dialog, DialogActions, DialogContent,
   DialogTitle, TextField, Box
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
 const CitasPage = () => {
   const [citas, setCitas] = useState([]);
+  const [mascotas, setMascotas] = useState([]);
   const [open, setOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState({ fecha: '', motivo: '', mascota_id: 1 });
+  const [formData, setFormData] = useState({ fecha: '', motivo: '', mascota_id: '' });
   const [selectedId, setSelectedId] = useState(null);
-  const navigate = useNavigate();
 
   const fetchCitas = async () => {
-    try {
-      const res = await api.get('/citas');
-      setCitas(res.data);
-    } catch {
-      localStorage.clear();
-      navigate('/');
-    }
+    const res = await api.get('/citas');
+    setCitas(res.data);
+  };
+
+  const fetchMascotas = async () => {
+    const res = await api.get('/mascotas');
+    setMascotas(res.data);
   };
 
   useEffect(() => {
     fetchCitas();
+    fetchMascotas();
   }, []);
 
   const handleOpen = () => {
     setEditMode(false);
-    setFormData({ fecha: '', motivo: '', mascota_id: 1 });
+    setFormData({ fecha: '', motivo: '', mascota_id: '' });
     setOpen(true);
   };
 
@@ -41,35 +41,36 @@ const CitasPage = () => {
   };
 
   const handleSubmit = async () => {
-    try {
-      if (editMode) {
-        await api.put(`/citas/${selectedId}`, formData);
-      } else {
-        await api.post('/citas', formData);
-      }
-      fetchCitas();
-      handleClose();
-    } catch (err) {
-      alert('Error al guardar la cita');
+    if (!formData.mascota_id) return alert("Selecciona una mascota");
+    if (editMode) {
+      await api.put(`/citas/${selectedId}`, formData);
+    } else {
+      await api.post('/citas', formData);
     }
+    fetchCitas();
+    handleClose();
   };
 
   const handleEdit = (cita) => {
     setEditMode(true);
-    setFormData({ fecha: cita.fecha, motivo: cita.motivo, mascota_id: cita.mascota_id });
+    setFormData({
+      fecha: cita.fecha,
+      motivo: cita.motivo,
+      mascota_id: cita.mascota_id
+    });
     setSelectedId(cita.id);
     setOpen(true);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar esta cita?')) {
+    if (window.confirm('¿Eliminar esta cita?')) {
       await api.delete(`/citas/${id}`);
       fetchCitas();
     }
   };
 
   return (
-    <Container maxWidth="md">
+    <Container>
       <Box mt={4} mb={2} display="flex" justifyContent="space-between">
         <Typography variant="h4">Citas</Typography>
         <Button variant="contained" onClick={handleOpen}>+ Nueva Cita</Button>
@@ -81,6 +82,7 @@ const CitasPage = () => {
               <CardContent>
                 <Typography variant="h6">{new Date(cita.fecha).toLocaleString()}</Typography>
                 <Typography>Motivo: {cita.motivo}</Typography>
+                <Typography>Mascota ID: {cita.mascota_id}</Typography>
                 <Box mt={2} display="flex" justifyContent="space-between">
                   <Button variant="outlined" onClick={() => handleEdit(cita)}>Editar</Button>
                   <Button variant="outlined" color="error" onClick={() => handleDelete(cita.id)}>Eliminar</Button>
@@ -110,6 +112,20 @@ const CitasPage = () => {
             value={formData.motivo}
             onChange={(e) => setFormData({ ...formData, motivo: e.target.value })}
           />
+          <TextField
+            select
+            label="Mascota"
+            fullWidth
+            margin="normal"
+            value={formData.mascota_id}
+            onChange={(e) => setFormData({ ...formData, mascota_id: e.target.value })}
+            SelectProps={{ native: true }}
+          >
+            <option value="">Selecciona una mascota</option>
+            {mascotas.map((m) => (
+              <option key={m.id} value={m.id}>{m.nombre}</option>
+            ))}
+          </TextField>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancelar</Button>

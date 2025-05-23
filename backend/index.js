@@ -12,12 +12,13 @@ app.use(express.json());
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
 const dbConfig = {
-  user: 'db_a25c05_sapitos_admin',
-  password: 'momju6-baTnax-rusxyq',
-  server: 'sql8020.site4now.net',
-  database: 'db_a25c05_sapitos',
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  server: process.env.DB_SERVER,
+  database: process.env.DB_NAME,
   options: { encrypt: true }
 };
+
 
 const poolPromise = new sql.ConnectionPool(dbConfig)
   .connect()
@@ -83,6 +84,9 @@ app.post('/api/register', async (req, res) => {
 // Conectar rutas de citas
 const citaRoutes = require('./routes/citaRoutes');
 app.use('/api', citaRoutes); // <-- Aquí se conectan las rutas del controller
+
+const mascotaRoutes = require('./routes/mascotaRoutes');
+app.use('/api', mascotaRoutes);
 
 // Puerto
 const PORT = process.env.PORT || 3001;
