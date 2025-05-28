@@ -1,0 +1,32 @@
+name: Deploy backend to Azure using zipdeploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Clean Azure App Service
+        run: |
+          curl -X POST "https://${{ secrets.AZURE_WEBAPP_BACKEND_NAME }}.scm.azurewebsites.net/api/command" \
+               -u ${{ secrets.AZURE_WEBAPP_BACKEND_CREDENTIALS }} \
+               -H "Content-Type: application/json" \
+               --data '{"command": "rm -rf /home/site/wwwroot/*"}'
+
+      - name: Zip backend
+        run: |
+          cd backend
+          zip -r ../backend.zip * .[^.]* -x "node_modules/*" ".env" "tests/"
+
+      - name: Deploy with zipdeploy
+        run: |
+          curl -X POST "https://${{ secrets.AZURE_WEBAPP_BACKEND_NAME }}.scm.azurewebsites.net/api/zipdeploy" \
+              -u ${{ secrets.AZURE_WEBAPP_BACKEND_CREDENTIALS }} \
+              --data-binary @"backend.zip"
