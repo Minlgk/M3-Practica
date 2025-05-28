@@ -24,6 +24,12 @@ jobs:
           npm run lint
         continue-on-error: true
 
+      - name: Run tests
+        run: |
+          cd backend
+          npm test
+        continue-on-error: true
+
       - name: Clean Azure App Service
         run: |
           curl -X POST "https://${{ secrets.AZURE_WEBAPP_BACKEND_NAME }}.scm.azurewebsites.net/api/command" \
