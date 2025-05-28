@@ -8,7 +8,7 @@ exports.getCitas = async (req, res) => {
     const pool = await poolPromise;
     let query;
     if (rol === 'veterinario' || rol === 'admin') {
-      query = "SELECT * FROM Citas WHERE estado = 'programada'";
+      query = 'SELECT * FROM Citas WHERE estado = \'programada\'';
     } else if (rol === 'cliente') {
       query = `SELECT c.* FROM Citas c 
                JOIN Mascotas m ON c.mascota_id = m.id 
@@ -33,7 +33,7 @@ exports.crearCita = async (req, res) => {
       .input('fecha', sql.DateTime, fecha)
       .input('motivo', sql.NVarChar, motivo)
       .input('mascota_id', sql.Int, mascota_id)
-      .query("INSERT INTO Citas (fecha, motivo, mascota_id, estado) VALUES (@fecha, @motivo, @mascota_id, 'programada')");
+      .query('INSERT INTO Citas (fecha, motivo, mascota_id, estado) VALUES (@fecha, @motivo, @mascota_id, \'programada\')');
     res.status(201).send('Cita creada');
   } catch {
     res.status(500).send('Error al crear cita');
