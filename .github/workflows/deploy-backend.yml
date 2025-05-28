@@ -13,12 +13,22 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm install
+
+      - name: Run ESLint
+        run: |
+          cd backend
+          npm run lint
+
       - name: Clean Azure App Service
         run: |
           curl -X POST "https://${{ secrets.AZURE_WEBAPP_BACKEND_NAME }}.scm.azurewebsites.net/api/command" \
-               -u ${{ secrets.AZURE_WEBAPP_BACKEND_CREDENTIALS }} \
-               -H "Content-Type: application/json" \
-               --data '{"command": "rm -rf /home/site/wwwroot/*"}'
+              -u ${{ secrets.AZURE_WEBAPP_BACKEND_CREDENTIALS }} \
+              -H "Content-Type: application/json" \
+              --data '{"command": "rm -rf /home/site/wwwroot/*"}'
 
       - name: Zip backend
         run: |
