@@ -1,0 +1,42 @@
+name: Deploy frontend to Azure using zipdeploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Build React app
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Clean Azure App Service
+        run: |
+          curl -X POST "https://${{ secrets.AZURE_WEBAPP_FRONTEND_NAME }}.scm.azurewebsites.net/api/command" \
+              -u ${{ secrets.AZURE_WEBAPP_FRONTEND_CREDENTIALS }} \
+              -H "Content-Type: application/json" \
+              --data '{"command": "rm -rf /home/site/wwwroot/*"}'
+
+      - name: Zip build folder
+        run: |
+          cd frontend/build
+          zip -r ../../frontend.zip * .[^.]* || true
+
+      - name: Deploy with zipdeploy
+        run: |
+          curl -X POST "https://${{ secrets.AZURE_WEBAPP_FRONTEND_NAME }}.scm.azurewebsites.net/api/zipdeploy" \
+              -u ${{ secrets.AZURE_WEBAPP_FRONTEND_CREDENTIALS }} \
+              --data-binary @"frontend.zip"
