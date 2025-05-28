@@ -29,9 +29,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
+          client-id: ${{ AZUREAPPSERVICE_CLIENTID_475F93918E3B45F1AF4E4E488DF9A19E }}
+          tenant-id: ${{ AZUREAPPSERVICE_TENANTID_B2CAE2F086A842949C3EC9950364FDDF }}
+          subscription-id: ${{ AZUREAPPSERVICE_SUBSCRIPTIONID_A792FB2A67404A0287299D168D1AD3A5}}
 
 
       - name: Build (if necessary)
