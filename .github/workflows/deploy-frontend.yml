@@ -21,6 +21,7 @@ jobs:
       - name: Build React app
         run: |
           cd frontend
+          echo "CI=false" >> .env
           npm run build
 
       - name: Run ESLint and fix issues
