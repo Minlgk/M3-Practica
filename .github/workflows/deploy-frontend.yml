@@ -18,6 +18,12 @@ jobs:
           cd frontend
           npm install
 
+      - name: Run tests (continue on error)
+        run: |
+          cd frontend
+          npm test -- --watchAll=false
+        continue-on-error: true
+
       - name: Build React app
         run: |
           cd frontend
